@@ -1,0 +1,8 @@
+{
+    "Franka":{
+		"RRT" : "./franka/rrt/config.json"
+	},
+	"UR3e":{
+		"RRT" : "./ur3e/rrt/config.json"
+	}
+}

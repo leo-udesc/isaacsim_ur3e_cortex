@@ -1,0 +1,8 @@
+{
+    "end_effector_frame_name": "tool0",
+    "relative_asset_paths": {
+        "robot_description_path" : "../../../motion_policy_configs/universal_robots/rmpflow/ur3e_robot_descriptor.yaml",
+        "urdf_path": "../../../motion_policy_configs/universal_robots/ur3e.urdf",
+        "rrt_config_path" : "ur3e_planner_config.yaml"
+    }
+}

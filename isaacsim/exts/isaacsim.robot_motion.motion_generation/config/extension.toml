@@ -1,0 +1,44 @@
+[core]
+reloadable = true
+order = 0
+
+[package]
+version = "8.0.6"
+category = "Simulation"
+title = "Isaac Sim Motion Generation"
+description = "Extension that provides support for generating motion with Lula-based motion policies and an interface for writing arbitrary motion policies"
+repository = ""
+authors = ["NVIDIA"]
+keywords = ["isaac", "motion generation", "lula", "motion policy"]
+changelog = "docs/CHANGELOG.md"
+readme = "docs/README.md"
+preview_image = "data/preview.png"
+icon = "data/icon.png"
+
+[dependencies]
+"isaacsim.robot_motion.lula" = {}
+"isaacsim.core.api" = {}
+"isaacsim.gui.components" = {}
+
+[[python.module]]
+name = "isaacsim.robot_motion.motion_generation"
+
+[[python.module]]
+name = "isaacsim.robot_motion.motion_generation.tests"
+
+[[test]]
+timeout = 900
+dependencies = [
+    "isaacsim.storage.native" # test only
+]
+
+args = [
+'--/persistent/simulation/defaultMetersPerUnit = 1.0',
+'--/persistent/app/stage/upAxis = "Z"',
+'--/persistent/isaac/asset_root/default = "https://omniverse-content-production.s3-us-west-2.amazonaws.com/Assets/Isaac/4.5"',
+]
+
+[[test]]
+name = "startup"
+args = [
+]
