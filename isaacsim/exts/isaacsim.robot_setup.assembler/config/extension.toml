@@ -1,0 +1,40 @@
+[core]
+reloadable = true
+order = 0
+
+[package]
+version = "2.1.5"
+category = "Simulation"
+title = "Robot Assembler"
+description = "Alpha version of Robot Assembler Extension: Assemble multiple Articulations into a single robot"
+authors = ["NVIDIA"]
+repository = ""
+keywords = []
+changelog = "docs/CHANGELOG.md"
+readme = "docs/README.md"
+preview_image = "data/preview.png"
+icon = "data/icon.png"
+
+[dependencies]
+"omni.kit.uiapp" = {}
+"isaacsim.gui.components" = {}
+"isaacsim.core.api" = {}
+"isaacsim.core.deprecation_manager" = {}
+
+[[python.module]]
+name = "isaacsim.robot_setup.assembler"
+
+[[test]]
+
+dependencies = [
+    "isaacsim.storage.native" # test only
+]
+
+args = [
+'--/persistent/isaac/asset_root/default = "https://omniverse-content-production.s3-us-west-2.amazonaws.com/Assets/Isaac/4.5"',
+]
+
+[[test]]
+name = "startup"
+args = [
+]
