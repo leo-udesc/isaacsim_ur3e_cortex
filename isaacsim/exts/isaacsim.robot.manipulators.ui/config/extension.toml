@@ -1,0 +1,35 @@
+[manipulators]
+reloadable = true
+order = 0
+
+[package]
+version = "2.1.4"
+category = "Simulation"
+title = "Isaac Sim Manipulators UI"
+description = "Manipulators"
+authors = ["NVIDIA"]
+repository = ""
+keywords = ["isaac", "manipulators", "ui"]
+changelog = "docs/CHANGELOG.md"
+readme = "docs/README.md"
+icon = "data/icon.png"
+preview_image = "data/preview.png"
+writeTarget.kit = true
+
+[dependencies]
+"isaacsim.core.api" = {}
+"isaacsim.robot.manipulators" = {}
+
+[[python.module]]
+name = "isaacsim.robot.manipulators.ui"
+
+[[test]]
+args = [
+'--/app/settings/fabricDefaultStageFrameHistoryCount = 3',
+]
+
+[[test]]
+name = "startup"
+args = [
+    '--/app/settings/fabricDefaultStageFrameHistoryCount = 3',
+]
