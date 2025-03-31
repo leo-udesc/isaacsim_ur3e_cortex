@@ -1,0 +1,42 @@
+[core]
+reloadable = true
+order = 0
+
+[package]
+version = "2.1.5"
+category = "Simulation"
+title = "Wheeled Robots UI"
+description = "This extension provides the UI elements for the wheeled_robots extension"
+authors = ["NVIDIA"]
+repository = ""
+keywords = ["isaac", "physics", "analyze", "tune", "ui"]
+changelog = "docs/CHANGELOG.md"
+readme = "docs/README.md"
+preview_image = "data/preview.png"
+icon = "data/icon.png"
+writeTarget.kit = true
+
+[dependencies]
+"isaacsim.core.api" = {}
+"isaacsim.gui.components" = {}
+"omni.graph" = {}
+"omni.graph.tools" = {}
+"isaacsim.robot.wheeled_robots" = {}
+"isaacsim.core.deprecation_manager" = {}
+
+
+[[python.module]]
+name = "isaacsim.robot.wheeled_robots.ui"
+
+
+[[test]]
+args = [
+'--/app/settings/fabricDefaultStageFrameHistoryCount = 3',
+'--/persistent/isaac/asset_root/default = "https://omniverse-content-production.s3-us-west-2.amazonaws.com/Assets/Isaac/4.5"',
+]
+
+[[test]]
+name = "startup"
+args = [
+    '--/app/settings/fabricDefaultStageFrameHistoryCount = 3',
+]
