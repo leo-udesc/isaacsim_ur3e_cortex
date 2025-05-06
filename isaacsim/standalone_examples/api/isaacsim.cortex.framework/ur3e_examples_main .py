@@ -38,17 +38,21 @@ class CubeSpec:
 
 
 def main():
-    world = CortexWorld()
+    #Create the world
+    world = CortexWorld()   
     context_monitor = ContextStateMonitor(print_dt=0.25)
+    #Add robot = load usd robot model
     robot = world.add_robot(add_ur3e_to_stage(name="ur3e", prim_path="/World/ur3e"))
 
+    #Cube configuration
     obs_specs = [
         CubeSpec("RedCube", [0.7, 0.0, 0.0]),
         CubeSpec("BlueCube", [0.0, 0.0, 0.7]),
         CubeSpec("YellowCube", [0.7, 0.7, 0.0]),
         CubeSpec("GreenCube", [0.0, 0.7, 0.0]),
     ]
-    width = 0.0515
+    width = 0.040 #define cube width = 4 cm
+    #positions linearly spaced cubes
     for i, (x, spec) in enumerate(zip(np.linspace(0.3, 0.7, len(obs_specs)), obs_specs)):
         obj = world.scene.add(
             DynamicCuboid(
@@ -59,8 +63,8 @@ def main():
                 position=np.array([x, -0.4, width / 2]),
             )
         )
-        robot.register_obstacle(obj)
-    world.scene.add_default_ground_plane()
+                robot.register_obstacle(obj)   #registers cubes as obstacles in the robot
+    world.scene.add_default_ground_plane()     "Add ground plane
 
     print()
     print("loading behavior: {}".format(args.behavior))
