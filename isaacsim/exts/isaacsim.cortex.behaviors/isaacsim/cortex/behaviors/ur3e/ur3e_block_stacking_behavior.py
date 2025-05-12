@@ -636,12 +636,12 @@ class ChooseNextBlockForTowerBuildUp(DfDecider):
 
     def decide(self):
         ct = self.context
-        # tô dando um migué
+        # tentando evitar o erro 
         next_block_name = ct.next_block_name
         if next_block_name is None or next_block_name not in ct.blocks:
             print("4 towers mounted or no more blocks to process")
             return DfDecision("go_home")
-        # fim do migué que não funcionou
+        #  não é por aqui, de volta para a análise
         ct.active_block = ct.blocks[ct.next_block_name]
 
         # Check exceptions
