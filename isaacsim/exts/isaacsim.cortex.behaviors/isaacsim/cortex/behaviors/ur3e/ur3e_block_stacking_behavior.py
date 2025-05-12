@@ -478,7 +478,7 @@ class BuildTowerContext(DfRobotApiContext):
         self.block_tower.stash_stack()
         for _, block in new_block_tower_sequence:
             self.block_tower.stack.append(block)
-        print("até aqui")
+        
         new_blocks, removed_blocks = self.block_tower.find_new_and_removed()
         for block in new_blocks:
             block.is_aligned = False
@@ -636,6 +636,12 @@ class ChooseNextBlockForTowerBuildUp(DfDecider):
 
     def decide(self):
         ct = self.context
+        # tô dando um migué
+        next_block_name = ct.next_block_name
+        if next_block_name is None or next_block_name not in ct.blocks:
+            print("4 towers mounted or no more blocks to process")
+            return DfDecision("go_home")
+        # fim do migué que não funcionou
         ct.active_block = ct.blocks[ct.next_block_name]
 
         # Check exceptions
