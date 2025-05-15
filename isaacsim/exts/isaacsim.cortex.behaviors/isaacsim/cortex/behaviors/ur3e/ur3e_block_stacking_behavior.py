@@ -232,7 +232,7 @@ class BuildTowerContext(DfRobotApiContext):
             return self.stack[-1]
 
         @property
-        def current_stack_in_correct_order(self):
+        def current_stack_in_correct_order(self):  #pilha atual está correta
             """Returns true if the current tower is in the correct order. False otherwise."""
             for pref_name, curr_block in zip(self.desired_stack, self.stack):
                 if curr_block.name != pref_name:
@@ -332,7 +332,7 @@ class BuildTowerContext(DfRobotApiContext):
         self.block_tower = BuildTowerContext.BlockTower(3,self.tower_position, self.block_height, self)
 
         self.active_block = None
-        self.in_gripper = None
+        self.in_gripper = NoneBuildTowerContext
         self.placement_target_eff_T = None
 
         self.print_dt = 0.25
@@ -454,63 +454,65 @@ class BuildTowerContext(DfRobotApiContext):
         The block tower is determined as the collection of blocks at the tower location and their
         order by height above the table.
         """
-        
+        #obtem a posição da torre
         tower_xy = self.block_tower.tower_position[:2]
-
+        #Cria uma lista para os blocos que estão na torre
         new_block_tower_sequence = []
+        #percorre bloco por bloco
         for name, block in self.blocks.items():
+            # se o bloco está na garra, não faz nada e continua
             if self.gripper_has_block and self.in_gripper.name == block.name:
                 # Don't include any blocks currently in the gripper
                 continue
-
+            # obtém a posição do bloco
             p, _ = block.obj.get_world_pose()
             block_xy = p[:2]
             block_z = p[2]
-
+            # calcula a distância entre o bloco e a torre
             dist_to_tower = np.linalg.norm(tower_xy - block_xy)
-            thresh = self.block_height / 2
-            if dist_to_tower <= thresh:
-                new_block_tower_sequence.append((block_z, block))
+            thresh = self.block_height / 2 #calcula limiar = metade do tamanho do bloco
+            if dist_to_tower <= thresh: #se a distância for <= ao limiar :
+                new_block_tower_sequence.append((block_z, block)) #então adiciona a altura e o bloco a lista
 
-        if len(new_block_tower_sequence) > 1:
-            new_block_tower_sequence.sort(key=lambda v: v[0])
+        if len(new_block_tower_sequence) > 1: #se houver mais de um bloco na lista
+            new_block_tower_sequence.sort(key=lambda v: v[0]) #ordena a lista do + baixo para o + alto
 
-        self.block_tower.stash_stack()
+        self.block_tower.stash_stack() #atualiza o estado anterior da pilha
         for _, block in new_block_tower_sequence:
-            self.block_tower.stack.append(block)
-        
+            self.block_tower.stack.append(block) #atualiza a pilha com os blocos da lista
+        # Compara a pilha anterior com a nova
         new_blocks, removed_blocks = self.block_tower.find_new_and_removed()
         for block in new_blocks:
-            block.is_aligned = False
+            block.is_aligned = False   #marca os novos blocos como não alinhados
 
         for block in removed_blocks:
-            block.is_aligned = None
+            block.is_aligned = None   # os blocos removidos marcados como não alinhados
 
     def monitor_gripper_has_block(self):
-        if self.gripper_has_block:
+        if self.gripper_has_block:   #se a garra tem um bloco
             block = self.in_gripper
-            _, block_p = math_util.unpack_T(block.obj.get_transform())
-            eff_p = self.robot.arm.get_fk_p()
-            if np.linalg.norm(block_p - eff_p) > 0.1:
-                self.diagnostics_message = "Block lost. Clearing gripper."
-                self.clear_gripper()
+            _, block_p = math_util.unpack_T(block.obj.get_transform()) #calcula a posição world do bloco 
+            eff_p = self.robot.arm.get_fk_p() #calcula a posição do end-effector
+            if np.linalg.norm(block_p - eff_p) > 0.1: #se a distância entre bloco o end-effector for maior que 10cm  
+                self.diagnostics_message = "Block lost. Clearing gripper." #perdeu o bloco
+                self.clear_gripper()  #limpa a garra
 
     def monitor_suppression_requirements(self):
         arm = self.robot.arm
-        eff_T = arm.get_fk_T()
+        eff_T = arm.get_fk_T() #calcula a posição do end-effector
         eff_R, eff_p = math_util.unpack_T(eff_T)
         ax, ay, az = math_util.unpack_R(eff_R)
 
-        target_p, _ = arm.target_prim.get_world_pose()
+        target_p, _ = arm.target_prim.get_world_pose() #calcula a posição do cubo alvo
 
-        toward_target = target_p - eff_p
-        dist_to_target = np.linalg.norm(toward_target)
+        toward_target = target_p - eff_p #calcula a direção da garra até o cubo alvo
+        dist_to_target = np.linalg.norm(toward_target) #calcula a distância entre a garra e o cubo alvo
 
-        blocks_to_suppress = []
-        if self.gripper_has_block:
-            blocks_to_suppress.append(self.in_gripper)
+        blocks_to_suppress = []                        #inicializa a lista de blocos a suprimir
+        if self.gripper_has_block:                     #se a garra tem um bloco
+            blocks_to_suppress.append(self.in_gripper) #bloco adicionado a lista de blocos a suprimir
 
-        for name, block in self.blocks.items():
+        for name, block in self.blocks.items():         
             block_T = block.obj.get_transform()
             block_R, block_p = math_util.unpack_T(block_T)
 
@@ -528,7 +530,7 @@ class BuildTowerContext(DfRobotApiContext):
             ):
                 if block not in blocks_to_suppress:
                     blocks_to_suppress.append(block)
-
+        # Desativa colisão para os blocos na lista
         for block in blocks_to_suppress:
             if block.collision_avoidance_enabled:
                 try:
@@ -539,7 +541,7 @@ class BuildTowerContext(DfRobotApiContext):
                     import traceback
 
                     traceback.print_exc()
-
+        # Ativa colisão para os blocos fora da lista
         for name, block in self.blocks.items():
             if block not in blocks_to_suppress:
                 if not block.collision_avoidance_enabled:
@@ -559,7 +561,7 @@ class BuildTowerContext(DfRobotApiContext):
             out += self.print_tower_status() + "\n"
             self.next_print_time += self.print_dt
             tower_position = [
-                np.array([0.3, 0.0, 0.0]),
+                np.array([0.3, 0.1, 0.0]),
                 np.array([0.3, 0.3, 0.0]),
                 np.array([0.2, 0.3, 0.0]),
             ]
@@ -666,7 +668,8 @@ class ChooseNextBlockForTowerBuildUp(DfDecider):
         return DfDecision(self.child_name, ct.active_block.chosen_grasp)
 
     def exit(self):
-        self.context.active_block.chosen_grasp = None
+        if self.context.active_block is not None:            #if colocado para evitar erro
+            self.context.active_block.chosen_grasp = None
 
 
 class ChooseNextBlockForTowerTeardown(DfDecider):
@@ -924,8 +927,8 @@ def set_top_block_aligned(ct):
 
 class PlaceBlockRd(DfStateMachineDecider, DfRldsNode):
     def __init__(self):
-        # This behavior uses the locking feature of the decision framework to run a state machine
-        # sequence as an atomic unit.
+        # This behavior uses the locking feature of the decision framework to 
+        # run a state machine sequence as an atomic unit.
         super().__init__(
             DfStateSequence(
                 [
@@ -947,7 +950,7 @@ class PlaceBlockRd(DfStateMachineDecider, DfRldsNode):
             eff_T = ct.robot.arm.get_fk_T()
 
             thresh_met = math_util.transforms_are_close(
-                ct.placement_target_eff_T, eff_T, p_thresh=0.002, R_thresh=0.005
+                ct.placement_target_eff_T, eff_T, p_thresh=0.002, R_thresh=0.004
             )
             # p_tresh = 0.005, R_thresh = 0.005 originally
             if thresh_met:
