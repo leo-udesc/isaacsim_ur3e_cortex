@@ -1,0 +1,121 @@
+# The robot description defines the generalized coordinates and how to map those
+# to the underlying URDF dofs.
+
+api_version: 1.0
+
+# Defines the generalized coordinates. Each generalized coordinate is assumed
+# to have an entry in the URDF.
+# Lula will only use these joints to control the robot position.
+cspace:
+    - waist_yaw_joint
+    - right_shoulder_pitch_joint
+    - right_shoulder_roll_joint
+    - right_shoulder_yaw_joint
+    - right_elbow_joint
+    - right_wrist_roll_joint
+    - right_wrist_pitch_joint
+    - right_wrist_yaw_joint
+    - right_hand_index_0_joint
+    - right_hand_middle_0_joint
+    - right_hand_thumb_1_joint
+default_q: [
+    -1e-04,0.0002,0.0,0.0,0.0003,0.0,0.0003,0.0,-0.0,-0.0,0.0014
+]
+
+acceleration_limits: [
+   10,10,10,10,10,10,10,10,10,10,10
+]
+
+jerk_limits: [
+   10000,10000,10000,10000,10000,10000,10000,10000,10000,10000,10000
+]
+
+# Most dimensions of the cspace have a direct corresponding element
+# in the URDF. This list of rules defines how unspecified coordinates
+# should be extracted or how values in the URDF should be overwritten.
+
+cspace_to_urdf_rules:
+
+# Lula uses collision spheres to define the robot geometry in order to avoid
+# collisions with external obstacles.  If no spheres are specified, Lula will
+# not be able to avoid obstacles.
+
+collision_spheres:
+  - waist_yaw_link:
+    - "center": [0.0, 0.0, 0.0]
+      "radius": 0.1
+    - "center": [0.0, 0.0, 0.25]
+      "radius": 0.12
+    - "center": [0.0, 0.0, 0.4]
+      "radius": 0.05
+    - "center": [0.0, 0.0, 0.46]
+      "radius": 0.08
+    - "center": [0.0, 0.0, 0.13]
+      "radius": 0.11
+  - right_shoulder_roll_link:
+    - "center": [0.0, -0.01, -0.05]
+      "radius": 0.05
+    - "center": [0.0, -0.005, 0.0]
+      "radius": 0.05
+  - right_shoulder_yaw_link:
+    - "center": [0.0, 0.0, 0.0]
+      "radius": 0.05
+  - right_elbow_link:
+    - "center": [0.0, 0.0, 0.0]
+      "radius": 0.05
+    - "center": [0.07, -0.005, -0.01]
+      "radius": 0.045
+  - right_wrist_roll_link:
+    - "center": [0.0, 0.0, 0.0]
+      "radius": 0.04
+  - right_wrist_pitch_link:
+    - "center": [0.0, 0.0, 0.0]
+      "radius": 0.04
+  - right_wrist_yaw_link:
+    - "center": [0.0, -0.003, 0.0]
+      "radius": 0.04
+    - "center": [0.09, -0.008, -0.015]
+      "radius": 0.035
+    - "center": [0.09, -0.008, 0.015]
+      "radius": 0.035
+    - "center": [0.05, -0.009, 0.0]
+      "radius": 0.035
+  - right_hand_thumb_1_link:
+    - "center": [0.0, 0.015, 0.0]
+      "radius": 0.015
+    - "center": [0.0, 0.03, 0.0]
+      "radius": 0.018
+    - "center": [0.0, 0.045, 0.0]
+      "radius": 0.018
+    - "center": [0.01, 0.07, 0.0]
+      "radius": 0.018
+    - "center": [0.018, 0.085, 0.0]
+      "radius": 0.015
+  - right_hand_index_0_link:
+    - "center": [0.0, 0.0, 0.0]
+      "radius": 0.02
+    - "center": [0.045, 0.0, 0.0]
+      "radius": 0.018
+    - "center": [0.016, 0.0, 0.0]
+      "radius": 0.01931
+    - "center": [0.031, 0.0, 0.0]
+      "radius": 0.01864
+    - "center": [0.06, 0.005, 0.0]
+      "radius": 0.015
+    - "center": [0.07, 0.015, 0.0]
+      "radius": 0.015
+    - "center": [0.016, 0.0, 0.0]
+      "radius": 0.01931
+    - "center": [0.08, 0.018, 0.0]
+      "radius": 0.015
+  - right_hand_middle_0_link:
+    - "center": [0.0, 0.0, 0.0]
+      "radius": 0.02
+    - "center": [0.03, 0.0, 0.0]
+      "radius": 0.02
+    - "center": [0.045, 0.0, 0.0]
+      "radius": 0.02
+    - "center": [0.065, 0.008, 0.0]
+      "radius": 0.018
+    - "center": [0.08, 0.017, 0.0]
+      "radius": 0.015

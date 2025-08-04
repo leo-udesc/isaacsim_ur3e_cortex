@@ -1,0 +1,110 @@
+# Copyright (c) 2019-2021, NVIDIA CORPORATION.  All rights reserved.
+#
+# NVIDIA CORPORATION and its licensors retain all intellectual property
+# and proprietary rights in and to this software, related documentation
+# and any modifications thereto.  Any use, reproduction, disclosure or
+# distribution of this software and related documentation without an express
+# license agreement from NVIDIA CORPORATION is strictly prohibited.
+#valores atribuidos com base nos arquivos de configuracao do rmpflow dos demais robôs
+joint_limit_buffers: [ 0.1, 0.1, 0.1, 0.1 , 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1
+ ]
+
+rmp_params:
+    cspace_target_rmp:
+        metric_scalar: 50.
+        position_gain: 100.
+        damping_gain: 50.
+        robust_position_term_thresh: 0.5
+        inertia: 1.
+    cspace_trajectory_rmp:
+        p_gain: 100.
+        d_gain: 10.
+        ff_gain: 0.25
+        weight: 50. 
+    cspace_affine_rmp:
+        final_handover_time_std_dev: 0.25
+        weight: 2000.
+    joint_limit_rmp:
+        metric_scalar: 50.
+        metric_length_scale: 0.1
+        metric_exploder_eps: 1e-5
+        metric_velocity_gate_length_scale: 0.1
+        accel_damper_gain: 50.
+        accel_potential_gain: 50.
+        accel_potential_exploder_length_scale: 0.1
+        accel_potential_exploder_eps: 1e-5
+    joint_velocity_cap_rmp:
+        max_velocity: 1.0
+        velocity_damping_region: 0.1
+        damping_gain: 50.
+        metric_weight: 50.
+    target_rmp:
+        accel_p_gain: 100.
+        accel_d_gain: 10.
+        accel_norm_eps: 1e-5
+        metric_alpha_length_scale: 0.1
+        min_metric_alpha: 0.1
+        max_metric_scalar: 50.
+        min_metric_scalar: 0.
+        proximity_metric_boost_scalar: 1.
+        proximity_metric_boost_length_scale: 0.1
+        xi_estimator_gate_std_dev: 0.25
+        accept_user_weights: false  # Values >= .5 are true and < .5 are false
+    axis_target_rmp:
+        accel_p_gain: 100.
+        accel_d_gain: 10.
+        metric_scalar: 50.
+        proximity_metric_boost_scalar: 1.
+        proximity_metric_boost_length_scale: 0.1
+        xi_estimator_gate_std_dev: 0.25
+        accept_user_weights: false
+    collision_rmp:
+        damping_gain: 50.
+        damping_std_dev: 0.1
+        damping_robustness_eps: 1e-5
+        damping_velocity_gate_length_scale: 0.1
+        repulsion_gain: 50.
+        repulsion_std_dev: 0.1
+        metric_modulation_radius: 0.1
+        metric_scalar: 50.      
+        #metric_scalar: 0.  # Turns off collision avoidance.
+        metric_exploder_std_dev: 
+        metric_exploder_eps: 
+    damping_rmp:
+        accel_d_gain: 30.
+        metric_scalar: 50.
+        inertia: 100.
+
+canonical_resolve:
+    max_acceleration_norm: 50.
+    projection_tolerance: .01
+    verbose: false
+
+body_cylinders:
+    - name: base_stem
+      pt1: [0,0,-0.105]
+      pt2: [0,0,-0.792]
+      radius: .2
+# body_collision_controllers are used to promote self-collision avoidance between the robot and its base
+# The example below defines the robot base to be a capsule defined by the absolute coordinates pt1 and pt2.
+# The semantic name provided for each body_cylinder does not need to be present
+
+# body_collision_controllers define esferas localizadas em quadros especificados no URDF do robô.
+# Essas esferas não poderão colidir com as cápsulas enumeradas em body_cylinders.
+# Por padrão, a maioria dos quadros em robôs industriais é cinematicamente incapaz de colidir com a base do robô.
+# Geralmente, só é necessário definir body_collision_controllers perto do efetor final.
+body_collision_controllers:
+    - name:  right_wrist_roll_link
+      radius: .05
+    - name: right_wrist_pitch_link
+      radius: .05
+    - name: right_wrist_yaw_link
+      radius: .05
+    - name: right_hand_palm_link
+      radius: .05
+    - name: right_hand_thumb_1_link
+      radius: .05
+    - name: right_hand_middle_0_link
+      radius: .075
+    - name: right_hand_index_0_link
+      radius: .075
