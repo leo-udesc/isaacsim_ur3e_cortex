@@ -1129,9 +1129,6 @@ class DfRldsDecider(DfDecider):
         super().__init__()
         self.sequence = []
 
-    def __str__(self):
-        return type(self).__name__
-
     class NamedRldsNode:
         """An internal class that packages the name together with the RLDS node.
 

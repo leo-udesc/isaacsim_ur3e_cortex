@@ -209,8 +209,8 @@ class DfApproachTarget(DfDecider):
     def __init__(
         self,
         approach_along_axis: Optional[int] = 2,
-        direction_length: Optional[float] = 0.1,
-        std_dev: Optional[float] = 0.05,
+        direction_length: Optional[float] = 0.11, # 0.1 original changed to ...
+        std_dev: Optional[float] = 0.03, # 0.05 original 
         approach_params_rel: Optional[ApproachParams] = None,
     ):
         super().__init__()
@@ -220,7 +220,7 @@ class DfApproachTarget(DfDecider):
         self.std_dev = std_dev
         self.approach_params_rel = approach_params_rel
 
-        self.add_child("go_target", DfGoTarget())
+        self.add_child("go_target", DfGoTarget())      #conecta o que foi decidido "go_target" com o DfGoTarget
 
     def __str__(self):
         return f"{super().__str__()}({self.approach_along_axis},{self.direction_length})"
@@ -240,8 +240,8 @@ class DfApproachTarget(DfDecider):
 
         eff_T = self.context.robot.arm.get_fk_T()
 
-        target_R, target_p = math_util.unpack_T(target_T)
-        eff_R, eff_p = math_util.unpack_T(eff_T)
+        target_R, target_p = math_util.unpack_T(target_T) #calcula Rotação e Pisição do target
+        eff_R, eff_p = math_util.unpack_T(eff_T) #calcula Rotação e Posição do effector
 
         # If the end-effector would twist around awkwardly, make an intermediate target which will get
         # it to go around the right direction.
@@ -249,9 +249,9 @@ class DfApproachTarget(DfDecider):
         # TODO: generalize this to support choice of different dominate axes.
         eff_ax, eff_ay, eff_az = math_util.unpack_R(eff_R)
         target_ax, target_ay, target_az = math_util.unpack_R(target_R)
-        if eff_ax.dot(target_ax) < -0.5:
-            avg_p = 0.5 * (eff_p + target_p)
-            avg_az = 0.5 * (eff_az + target_az)
+        if eff_ax.dot(target_ax) < -0.5:        #calcula se o produto escalar entre eff_ax e target_ax é maior que 120°
+            avg_p = 0.5 * (eff_p + target_p)    #calcula pto intermediário para evitar o twist
+            avg_az = 0.5 * (eff_az + target_az) #calcula a rotação intermediária
 
             ref_ax = normalized(-avg_p)
             target_az = avg_az
@@ -273,7 +273,7 @@ class DfApproachTarget(DfDecider):
 
 
 # Legacy naming
-DfApproachGrasp = DfApproachTarget
+DfApproachGrasp = DfApproachTarget   
 
 
 class DfApproachTargetLinearly(DfDecider):
@@ -425,7 +425,7 @@ class DfCloseGripper(DfAction):
 
     Supports sending this decider node the width parameter from a parent. If it comes from a parent
     node, that overrides any default width value set on entry.
-
+robot
     Args:
         width: The width to close the gripper to. If None (default), it closes the gripper all the
             way.

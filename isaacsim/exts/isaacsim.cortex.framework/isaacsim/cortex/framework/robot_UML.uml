@@ -1,0 +1,102 @@
+@startuml
+class MyAction {
+    step()
+        __init__()
+}
+class CortexGripper {
+    get_width()
+    joints_to_width()
+    width_to_joints()
+    move_to()
+    open()
+    close()
+    close_to_grasp()
+    is_open()
+    is_closed()
+    step()
+    _apply_width_action()
+    _get_applied_width_action()
+        opened_width
+    closed_width
+    width
+    speed
+    force
+    __init__()
+}
+class FrankaGripper {
+    joints_to_width()
+    width_to_joints()
+        __init__()
+}
+class EGH80Gripper {
+    joints_to_width()
+    width_to_joints()
+        __init__()
+}
+class CortexRobot {
+    add_commander()
+    set_commanders_step_dt()
+    flag_commanders_for_reset()
+    step_commanders()
+    reset_commanders()
+    _reset_commanders_if_needed()
+        commanders_step_dt
+    commanders_reset_needed
+    commanders
+    commanders_step_dt
+    commanders_reset_needed
+    commanders_reset_needed
+    __init__()
+}
+class DirectSubsetCommander {
+    step()
+        q
+    qd
+    __init__()
+}
+class MotionCommandedRobot {
+    initialize()
+    default_config()
+    registered_obstacles()
+    register_obstacle()
+        active_commander
+    smoothed_rmpflow
+    smoothed_commands
+    settings
+    motion_policy
+    motion_policy
+    arm_commander
+    arm_commander
+    __init__()
+}
+class CortexFranka {
+    initialize()
+    add_franka_to_stage()
+        gripper_commander
+    __init__()
+}
+class CortexUr10 {
+    initialize()
+    post_reset()
+    add_ur10_to_stage()
+        _end_effector_prim_path
+    suction_gripper
+    __init__()
+}
+class CortexUR3e {
+    initialize()
+    add_ur3e_to_stage()
+        gripper_commander
+    __init__()
+}
+DfAction <|-- MyAction
+Commander <|-- CortexGripper
+CortexGripper <|-- FrankaGripper
+CortexGripper <|-- EGH80Gripper
+CommandableArticulation <|-- CortexRobot
+Commander <|-- DirectSubsetCommander
+CortexRobot <|-- MotionCommandedRobot
+MotionCommandedRobot <|-- CortexFranka
+MotionCommandedRobot <|-- CortexUr10
+MotionCommandedRobot <|-- CortexUR3e
+@enduml
