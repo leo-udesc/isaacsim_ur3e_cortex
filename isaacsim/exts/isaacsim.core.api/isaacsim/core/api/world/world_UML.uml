@@ -1,0 +1,30 @@
+@startuml
+class World {
+    clear_instance()
+    scene()
+    add_task()
+    is_tasks_scene_built()
+    get_current_tasks()
+    get_task()
+    get_observations()
+    calculate_metrics()
+    is_done()
+    get_data_logger()
+    initialize_physics()
+    reset()
+    step()
+    step_async()
+    clear()
+        _task_scene_built
+    _current_tasks
+    _scene
+    _data_logger
+    _task_scene_built
+    _task_scene_built
+    _current_tasks
+    _task_scene_built
+    _data_logger
+    __init__()
+}
+SimulationContext <|-- World
+@enduml
