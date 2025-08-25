@@ -1,0 +1,70 @@
+[core]
+reloadable = true
+order = 0
+
+[package]
+version = "0.3.5"
+category = "Simulation"
+title = "Isaac Sim Physics Sensor Simulation"
+description = "Isaac Sim Physics Sensor Simulation extension provides APIs for physics-based sensors, including Contact Sensor, Effort Sensor, & IMU Sensor."
+authors = ["NVIDIA"]
+repository = ""
+keywords = ["isaac", "physics", "robotics"]
+changelog = "docs/CHANGELOG.md"
+readme = "docs/README.md"
+preview_image = "data/preview.png"
+icon = "data/icon.png"
+writeTarget.kit = true
+
+[dependencies]
+"isaacsim.core.api" = {}
+"isaacsim.core.deprecation_manager" = {}
+"isaacsim.core.nodes" = {}
+"isaacsim.robot.schema" = {}
+"isaacsim.storage.native" = {}
+"omni.graph" = {}
+"omni.kit.numpy.common" = {}
+"omni.kit.pip_archive" = {} # pulls in numpy
+"omni.physx" = {}
+"omni.replicator.core" = {}
+"omni.timeline" = {} # Needed for simulation to occur
+"omni.usd" = {} # needed for call to add aov
+"usdrt.scenegraph" = {}
+
+[[python.module]]
+name = "isaacsim.sensors.physics"
+
+[[python.module]]
+name = "isaacsim.sensors.physics.tests"
+public = false
+
+[[native.plugin]]
+path = "bin/*.plugin"
+recursive = false
+
+[settings]
+
+[[test]]
+timeout = 900
+stdoutFailPatterns.exclude = [
+    # This is excluded in at least 3 kit tests.
+    "*Missing call to destroyResourceBindingSignature()*",
+    '*[Error] [omni.graph.core.plugin] /TestGraph/Template_isaacsim_sensors_physics_IsaacReadContactSensor: [/TestGraph] Invalid contact sensor prim*',
+    '*[Error] [omni.graph.core.plugin] /TestGraph/Template_isaacsim_sensors_physics_IsaacReadEffortSensor: [/TestGraph] OmniGraph Error: Failed to create effort sensor, unable to find prim path*',
+    '*[Error] [omni.graph.core.plugin] /TestGraph/Template_isaacsim_sensors_physics_IsaacReadIMU: [/TestGraph] Invalid Imu sensor prim*',
+    '*[Error] [omni.graph.core.plugin] /TestGraph/ReadEffortNode: [/TestGraph] OmniGraph Error: Failed to create effort sensor, unable to find prim path*',
+    '*[Error] [omni.graph.core.plugin] /TestGraph/ReadIMUNode: [/TestGraph] Invalid Imu sensor prim*',
+    '*parent prim is missing contact report API*',
+    '*Error processing node attribute `outputs:pointInstanceDataType`: dataType attribute is empty*'
+]
+
+args = [
+'--/app/settings/fabricDefaultStageFrameHistoryCount = 3',
+'--/persistent/isaac/asset_root/default = "https://omniverse-content-production.s3-us-west-2.amazonaws.com/Assets/Isaac/4.5"',
+]
+
+[[test]]
+name = "startup"
+args = [
+    '--/app/settings/fabricDefaultStageFrameHistoryCount = 3',
+]
