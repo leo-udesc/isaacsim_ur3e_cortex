@@ -1,0 +1,23 @@
+[core]
+reloadable = true
+order = 0
+
+[package]
+version = "1.0.3"
+category = "Internal"
+title = "Isaac Sim DocTest"
+description = "Test interactive Python docstrings examples"
+authors = ["NVIDIA"]
+repository = ""
+keywords = ["isaac", "test", "doctest", "docstrings"]
+changelog = "docs/CHANGELOG.md"
+readme = "docs/README.md"
+preview_image = "data/preview.png"
+icon = "data/icon.png"
+
+[dependencies]
+"isaacsim.core.deprecation_manager" = {}
+"omni.kit.test" = {}
+
+[[python.module]]
+name = "isaacsim.test.docstring"
