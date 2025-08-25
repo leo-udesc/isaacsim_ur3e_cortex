@@ -1,0 +1,19 @@
+@startuml
+class Commander {
+    num_controlled_joints()
+    controlled_joints()
+    latest_action()
+    command()
+    send()
+    clear()
+    step()
+    reset()
+    post_reset()
+        articulation_subset
+    latest_command
+    latest_command
+    latest_command
+    __init__()
+}
+ABC <|-- Commander
+@enduml

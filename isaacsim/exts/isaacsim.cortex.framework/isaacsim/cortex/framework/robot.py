@@ -91,6 +91,7 @@ class CortexGripper(Commander):
     the commanders, so this commander doesn't explicitly need to override reset().
 
     Args:
+    
         articulation_subset: The subset of joints controlled by this commander.
         opened_width: The width the gripper is opened to on open().
         closed_width: The width the gripper is closed to on close().
@@ -263,6 +264,56 @@ class CortexGripper(Commander):
         """
         return self.joints_to_width(self.articulation_subset.get_applied_action().joint_positions)
 
+class DEX31Gripper(CortexGripper):
+    """DEX31 specific tree fingers hand gripper.
+
+    Specifies the gripper joints, provides mappings from width to joints, and defines the franka
+    opened and closed widths.
+
+    Args:
+        articulation: The Articulation object containing the finger joints that will be controlled
+            by this parallel graipper.
+    """
+    #"right_hand_thumb_0_joint", "right_hand_thumb_1_joint", "right_hand_index_0_joint","right_hand_middle_0_joint",
+    def __init__(self, articulation: SingleArticulation):
+        super().__init__(
+            articulation_subset=ArticulationSubset(
+                articulation, ["right_hand_thumb_2_joint",
+                               "right_hand_index_1_joint", 
+                               "right_hand_middle_1_joint"]
+            ),
+            opened_width=0.20,
+            closed_width=0.0,
+        )
+
+    def joints_to_width(self, joint_positions: Sequence[float]) -> float:
+        """The width is simply the sum of the two prismatic joints.
+
+        Args:
+            joint_positions: The values for joints 
+                            ["right_hand_thumb_0_joint", "right_hand_thumb_1_joint",
+                            "right_hand_thumb_2_joint", "right_hand_index_0_joint",
+                            "right_hand_index_1_joint", "right_hand_middle_0_joint",
+                            "right_hand_middle_1_joint"].
+
+        Returns:
+            The width of the gripper corresponding to those joint positions.
+        """
+        # return joint_positions[0] + joint_positions[1] + joint_positions[2] + joint_positions[3] + joint_positions[4] + joint_positions[5] + joint_positions[6]
+        return joint_positions[0] + joint_positions[1] + joint_positions[2] 
+
+    def width_to_joints(self, width: float) -> np.ndarray:
+        """Cada junta tem metade da largura, já que a largura é a soma delas. 
+
+            Args:
+                width: A largura da pinça
+
+            Returns:
+                Os valores para as juntas ["panda_finger_joint1", "panda_finger_joint2"] que fornecem a
+                largura da pinça solicitada.
+        """
+        return np.array([width / 2, width / 2, width / 2])
+    
 
 class FrankaGripper(CortexGripper):
     """Franka specific parallel gripper.
@@ -345,48 +396,6 @@ class EGH80Gripper(CortexGripper):
             requested gripper width.
         """
         return np.array([width / 2, width / 2])
-
-# class DEX31Gripper(CortexGripper):
-#     """DEX3_1 specific parallel gripper.
-
-#     Specifies the gripper joints, provides mappings from width to joints, and defines the DEX3_1
-#     opened and closed widths.
-
-#     Args:
-#         articulation: The Articulation object containing the finger joints that will be controlled
-#             by this parallel graipper.
-#     """
-
-#     def __init__(self, articulation: SingleArticulation):
-#         super().__init__(
-#             articulation_subset=ArticulationSubset(articulation, ["right_hand_thumb_1_joint", "right_hand_middle_0_joint", "right_hand_index_0_joint"]),
-#             opened_width=0.012,
-#             closed_width=0.0,
-#         )
-
-#     def joints_to_width(self, joint_positions: Sequence[float]) -> float:
-#         """The width is simply the sum of the two prismatic joints.
-
-#         Args:
-#             joint_positions: The values for joints "right_hand_thumb_1_joint", "right_hand_middle_0_joint", "right_hand_index_0_joint"].
-
-#         Returns:
-#             The width of the gripper corresponding to those joint positions.
-#         """
-#         return joint_positions[0] + joint_positions[1] + joint_positions[2]
-
-#     def width_to_joints(self, width: float) -> np.ndarray:
-#         """Each joint is half of the width since the width is their sum.
-
-#         Args:
-#             width: The width of the gripper
-
-#         Returns:
-#             The values for joints ["right_finger", "left_finger"] giving the
-#             requested gripper width.
-#         """
-#         return np.array([width / 2, width / 2])
-
 
 class CortexRobot(CommandableArticulation):
     """A robot is an Articulation with a collection of commanders commanding in combination the
@@ -830,15 +839,15 @@ class CortexUR3e(MotionCommandedRobot):
 
         Cada um desses comandantes é acessível por meio dos membros arm e gripper.
 
-        Este objeto envolve apenas um USD Franka existente no estágio no prim_path especificado.
+        Este objeto envolve apenas um USD UR3e existente no estágio no prim_path especificado.
         Para adicioná-lo ao estágio primeiro e depois envolvê-lo,
         use o método add_ur3e_to_stage().
 
-        Observe que position e orientation são ambos relativos ao prim em que o Franka está.
+        Observe que position e orientation são ambos relativos ao prim em que o UR3e está.
 
         Argumentos:
-        name: Um nome para o robô Franka. Os robôs adicionados ao CortexWorld devem ter nomes exclusivos.
-        prim_path: O caminho para o prim UR3e no estágio USD.
+        name: Um nome para o robô UR3e. Os robôs adicionados ao CortexWorld devem ter nomes exclusivos.
+        prim_path: O caminho para o prim no estágio USD.
         position: A posição do robô. Veja o parâmetro position do CortexRobot para detalhes.
         orientation: A orientação do robô. Veja o parâmetro orientation do CortexRobot para detalhes.
         use_motion_commander: Quando definido como True (padrão), usa o motion commander. 
@@ -919,108 +928,94 @@ def add_ur3e_to_stage(
 
     return CortexUR3e(name, prim_path, position, orientation, use_motion_commander)
 #=========================================================================================
-# class CortexG1(MotionCommandedRobot):
-#     """The Cortex G1 contains commanders for commanding the end-effector (a MotionCommander
-#     governing the full arm) and the gripper (a FrankaGripper governing the fingers).
+class CortexG1(MotionCommandedRobot):
+     """The Cortex G1 contains commanders for commanding the "hand-effector" (a MotionCommander
+     governing the full arm) and the gripper (a DEX3_1Grippers governing the fingers).
 
-#     Each of these commanders are accessible via members arm and gripper.
+     Each of these commanders are accessible via members arm and gripper.
 
-#     This object only wraps an existing USD G1 on the stage at the specified prim_path. To
-#     add it to the stage first then wrap it, use the add_g1_to_stage() method.
+     This object only wraps an existing USD G1 on the stage at the specified prim_path. To
+     add it to the stage first then wrap it, use the add_g1_to_stage() method.
 
-#     Note that position and orientation are both relative to the prim the G1 sits on.
+     Note that position and orientation are both relative to the prim the G1 sits on.
 
-#     Args:
-#         name: A name for the G1 robot. Robots added to the CortexWorld should all have unique names.
-#         prim_path: The path to the G1 prim in the USD stage.
-#         position: The position of the robot. See CortexRobot's position parameter for details.
-#         orientation: The orientation of the robot. See CortexRobot's orientation parameter for details.
-#         use_motion_commander: When set to True (default), uses the motion commander. Otherwise,
-#             includes only a DirectSubsetCommander for the arm.
-#     """
+     Args:
+         name:  O nome para o robô G1. Todos os robôs adicionados ao CortexWorld devem ter nomes exclusivos.
+         prim_path: O caminho para o prim G1 no stage USD.
+         position: A posição do robô. Consulte o parâmetro position do CortexRobot para obter detalhes.
+         orientation:  A orientação do robô. Consulte o parâmetro orientation do CortexRobot para obter detalhes.
+         use_motion_commander: Quando definido como True (padrão), usa o comandante de movimento. 
+                                Caso contrário, inclui apenas um DirectSubsetCommander para o braço.
+     """
 
-#     def __init__(
-#         self,
-#         name: str,
-#         prim_path: str,
-#         position: Optional[Sequence[float]] = None,
-#         orientation: Optional[Sequence[float]] = None,
-#         use_motion_commander=True,
-#     ):
-#         #motion_policy_config = icl.load_supported_motion_policy_config("G1", "RMPflowCortex")
-#         #super().__init__(
-#         #    name=name,
-#         #    prim_path=prim_path,
-#         #    motion_policy_config=motion_policy_config,
-#         #    position=position,
-#         #    orientation=orientation,
-#         #    settings=MotionCommandedRobot.Settings(
-#         #        active_commander=use_motion_commander, smoothed_rmpflow=True, smoothed_commands=True
-#         #   ),
-#         #)
-#         motion_policy_config = {
-#             "robot_description_path": "/home/leo/ws_isaacsim/unitree/src/unitree_g1_description/usd/g1_tbl.usd",
-#             "end_effector_frame_name": "g1_right_hand",  # Exemplo, troque pelo nome correto do seu URDF
-#             "active_joints": [ 
-#                 "waist_yaw_joint",
-#                 "right_shoulder_pitch_joint",
-#                 "right_shoulder_roll_joint",
-#                 "right_shoulder_yaw_joint",
-#                 "right_elbow_joint",
-#                 "right_wrist_pitch_joint",
-#                 "right_wrist_roll_joint",
-#                # ...adicionar as juntas das mãos se quiser controlar os dedos...
-#     ],
-#     # "base_frame_name": "g1_base_link",  # (opcional)
-# }
+     def __init__(
+         self,
+         name: str,
+         prim_path: str,
+         position: Optional[Sequence[float]] = None,
+         orientation: Optional[Sequence[float]] = None,
+         use_motion_commander=True,
+     ):
+         motion_policy_config = icl.load_supported_motion_policy_config("G1", "RMPflowCortex")
+         super().__init__(
+             name=name,
+             prim_path=prim_path,
+             motion_policy_config=motion_policy_config,
+             position=position,
+             orientation=orientation,
+             settings=MotionCommandedRobot.Settings(
+                 active_commander=use_motion_commander, smoothed_rmpflow=True, smoothed_commands=True
+             ),
+         )
+        
+         self.gripper_commander = DEX31Gripper(self)
+         self.add_commander("gripper", self.gripper_commander)
 
-#         self.gripper_commander = DEX31Gripper(self)
-#         self.add_commander("gripper", self.gripper_commander)
+     def initialize(self, physics_sim_view: omni.physics.tensors.SimulationView = None) -> None:
+         """Initializes using MotionCommandedRobot's initialize() and also adds custom setting of the
+         gains.
 
-#     def initialize(self, physics_sim_view: omni.physics.tensors.SimulationView = None) -> None:
-#         """Initializes using MotionCommandedRobot's initialize() and also adds custom setting of the
-#         gains.
+         Users generally don't need to call this method explicitly. It's handled automatically on
+         reset() when this robot is added to the CortexWorld.
 
-#         Users generally don't need to call this method explicitly. It's handled automatically on
-#         reset() when this robot is added to the CortexWorld.
+         Args:
+             physics_sim_view: Sim information required by the underlying Articulation initialization.
+         """
+         super().initialize(physics_sim_view)
 
-#         Args:
-#             physics_sim_view: Sim information required by the underlying Articulation initialization.
-#         """
-#         super().initialize(physics_sim_view)
+         verbose = True 
+         kps = np.array([1000000.0, 1000000.0, 1000000.0, 1000000.0, 1000000.0, 1000000.0, 1000000.0, 1000000.0, 1000.0, 1000.0, 1000.0])
+         kds = np.array([50000.0, 50000.0, 50000.0, 50000.0, 50000.0, 30000.0, 30000.0, 30000.0, 1000.0, 1000.0, 1000.0])
+         if verbose:
+             print("setting G1 gains:")
+             print("- kps: {}".format(kps))
+             print("- kds: {}".format(kds))
+         self.get_articulation_controller().set_gains(kps, kds)
 
-#         verbose = Trueadd_g1_to_stag
-#         kps = np.array([6000000.0, 6000000.0, 6000000.0, 6000000.0, 6000000.0, 6000000.0, 6000000.0, 6000000.0, 5000.0, 5000.0, 5000.0])
-#         kds = np.array([50000.0, 50000.0, 50000.0, 50000.0, 50000.0, 30000.0, 30000.0, 30000.0, 1000.0, 1000.0, 1000.0])
-#         if verbose:
-#             print("setting G1 gains:")
-#             print("- kps: {}".format(kps))
-#             print("- kds: {}".format(kds))
-#         self.get_articulation_controller().set_gains(kps, kds)
+def add_g1_to_stage(
+     name: str,
+     prim_path: str,
+     usd_path: Optional[str] = "/home/leo/ws_isaacsim/g1/usd/g1.usd",
+     position: Optional[Sequence[float]] = None,
+     orientation: Optional[Sequence[float]] = None,
+     use_motion_commander=True,
+):
+    """Adds a G1 to the stage at the specified prim_path, then wrap it as a CortexG1 object.
 
-# def add_g1_to_stage(
-#     name: str,
-#     prim_path: str,
-#     usd_path: Optional[str] = None,
-#     position: Optional[Sequence[float]] = None,
-#     orientation: Optional[Sequence[float]] = None,
-#     use_motion_commander=True,
-# ):
-#     """Adds a G1 to the stage at the specified prim_path, then wrap it as a CortexG1 object.
+     Args:
+         For name, prim_path, position, orientation, and motion_commander, see the CortexG1 doc
+         string.
 
-#     Args:
-#         For name, prim_path, position, orientation, and motion_commander, see the CortexG1 doc
-#         string.
+         usd_path: An optional path to the G1 USD asset to add. If a specific path is not
+             provided, a default G1 USD path is used.
 
-#         usd_path: An optional path to the G1 USD asset to add. If a specific path is not
-#             provided, a default G1 USD path is used.
+     Returns: The constructed CortexG1 object.
+    """
 
-#     Returns: The constructed CortexG1 object.
-#     """
-#     if usd_path is not None:
-#         add_reference_to_stage(usd_path=usd_path, prim_path=prim_path)
-#     else:
-#         usd_path = "/home/leo/ws_isaacsim/unitree/src/unitree_g1_description/usd/g1_tbl.usd"
-#         add_reference_to_stage(usd_path=usd_path, prim_path=prim_path)
+    if usd_path is not None:
+        add_reference_to_stage(usd_path=usd_path, prim_path=prim_path)
+    else:
+        usd_path = get_assets_root_path_or_die() + "/Isaac/Robots/G1/g1.usd"
+        add_reference_to_stage(usd_path=usd_path, prim_path=prim_path)
 
-#     return CortexG1(name, prim_path, position, orientation, use_motion_commander)
+    return CortexG1(name, prim_path, position, orientation, use_motion_commander)

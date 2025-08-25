@@ -121,13 +121,6 @@ following the simulated robot. Try the following:
 ```
 cd standalone_examples/cortex
 ./cortex activate open_gripper.py  # Opens the physical gripper
-./cortex activate close_gripper.py  # Closes the physical gripper
-./cortex activate go_home.py  # Sends the robot to its home position
-```
-Once the robot gets to its home position, you'll be able to control the robot manually by moving the 
-`motion_controller_target` prim in the stage located at
-```
-/cortex/belief/motion_controller_target
 ```
 Select the prim, then select the "Move" tool from the toolbar along the left edge of the viewport.
 Then drag the arrows. 
@@ -167,13 +160,7 @@ For instance, the block stacking env containing both belief and sim is laid out 
     /objects
       /red_block    # cortex:is_obstacle = True
       /yellow_block # cortex:is_obstacle = True
-      /green_block  # cortex:is_obstacle = True
-      /blue_block   # cortex:is_obstacle = True
-  /sim
-    /robot  # Franka USD with cortex:robot_type of 'franka'
-    /objects
-      /red_block
-      /yellow_block
+      /green_block  # cortex:is_obstacle = Trueexe
       /green_block
       /blue_block
 

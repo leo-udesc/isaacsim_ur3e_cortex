@@ -23,6 +23,11 @@ class CortexGripper {
     force
     __init__()
 }
+class DEX31Gripper {
+    joints_to_width()
+    width_to_joints()
+        __init__()
+}
 class FrankaGripper {
     joints_to_width()
     width_to_joints()
@@ -89,8 +94,15 @@ class CortexUR3e {
         gripper_commander
     __init__()
 }
+class CortexG1 {
+    initialize()
+    add_g1_to_stage()
+        gripper_commander
+    __init__()
+}
 DfAction <|-- MyAction
 Commander <|-- CortexGripper
+CortexGripper <|-- DEX31Gripper
 CortexGripper <|-- FrankaGripper
 CortexGripper <|-- EGH80Gripper
 CommandableArticulation <|-- CortexRobot
@@ -99,4 +111,5 @@ CortexRobot <|-- MotionCommandedRobot
 MotionCommandedRobot <|-- CortexFranka
 MotionCommandedRobot <|-- CortexUr10
 MotionCommandedRobot <|-- CortexUR3e
+MotionCommandedRobot <|-- CortexG1
 @enduml

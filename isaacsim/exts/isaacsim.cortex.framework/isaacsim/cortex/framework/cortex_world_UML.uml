@@ -1,0 +1,38 @@
+@startuml
+class LogicalStateMonitor {
+    pre_step()
+    post_reset()
+        name
+    df_logical_state
+    __init__()
+}
+class Behavior {
+    pre_step()
+    post_reset()
+        df_behavior
+    name
+    __init__()
+}
+class CommandableArticulation {
+    step_commanders()
+    reset_commanders()
+    pre_step()
+    post_reset()
+        __init__()
+}
+class CortexWorld {
+    add_logical_state_monitor()
+    add_behavior()
+    add_decider_network()
+    add_robot()
+    step()
+    reset()
+    reset_cortex()
+    run()
+        _logical_state_monitors
+    _behaviors
+    _robots
+    __init__()
+}
+World <|-- CortexWorld
+@enduml
