@@ -1,0 +1,93 @@
+# Copyright (c) 2018-2024, NVIDIA CORPORATION. All rights reserved.
+#
+# NVIDIA CORPORATION and its licensors retain all intellectual property
+# and proprietary rights in and to this software, related documentation
+# and any modifications thereto. Any use, reproduction, disclosure or
+# distribution of this software and related documentation without an express
+# license agreement from NVIDIA CORPORATION is strictly prohibited.
+#
+
+import weakref
+from pathlib import Path
+
+import carb
+import omni.kit.commands
+from isaacsim.gui.components.menu import make_menu_item_description
+from omni.kit.menu.utils import MenuItemDescription, add_menu_items, remove_menu_items
+from pxr import Gf, Sdf, UsdGeom
+
+
+class RangeSensorMenu:
+    def __init__(self, ext_id: str):
+        menu_items = [
+            MenuItemDescription(
+                name="PhysX Lidar",
+                sub_menu=[
+                    make_menu_item_description(ext_id, "Rotating", lambda a=weakref.proxy(self): a._add_lidar()),
+                    make_menu_item_description(ext_id, "Generic", lambda a=weakref.proxy(self): a._add_generic()),
+                ],
+            ),
+            make_menu_item_description(
+                ext_id, "LightBeam Sensor", lambda a=weakref.proxy(self): a._add_lightbeam_sensor()
+            ),
+        ]
+        icon_dir = omni.kit.app.get_app().get_extension_manager().get_extension_path_by_module(__name__)
+        sensor_icon_path = str(Path(icon_dir).joinpath("data/sensor.svg"))
+
+        self._menu_items = [MenuItemDescription(name="Sensors", glyph=sensor_icon_path, sub_menu=menu_items)]
+        add_menu_items(self._menu_items, "Create")
+
+    def _get_stage_and_path(self):
+        self._stage = omni.usd.get_context().get_stage()
+        selectedPrims = omni.usd.get_context().get_selection().get_selected_prim_paths()
+
+        if len(selectedPrims) > 0:
+            curr_prim = selectedPrims[-1]
+        else:
+            curr_prim = None
+        return curr_prim
+
+    def _add_lidar(self, *args, **kwargs):
+        result, prim = omni.kit.commands.execute(
+            "RangeSensorCreateLidar",
+            path="/Lidar",
+            parent=self._get_stage_and_path(),
+            min_range=0.4,
+            max_range=100.0,
+            draw_points=False,
+            draw_lines=False,
+            horizontal_fov=360.0,
+            vertical_fov=30.0,
+            horizontal_resolution=0.4,
+            vertical_resolution=4.0,
+            rotation_rate=20.0,
+            high_lod=False,
+            yaw_offset=0.0,
+            enable_semantics=False,
+        )
+
+    def _add_generic(self, *args, **kwargs):
+        result, prim = omni.kit.commands.execute(
+            "RangeSensorCreateGeneric",
+            path="/GenericSensor",
+            parent=self._get_stage_and_path(),
+            min_range=0.4,
+            max_range=100.0,
+            draw_points=False,
+            draw_lines=False,
+            sampling_rate=60,
+        )
+
+    def _add_lightbeam_sensor(self, *args, **kargs):
+        result, prim = omni.kit.commands.execute(
+            "IsaacSensorCreateLightBeamSensor",
+            path="/LightBeam_Sensor",
+            parent=self._get_stage_and_path(),
+            translation=Gf.Vec3d(0, 0, 0),
+            orientation=Gf.Quatd(1.0, 0.0, 0.0, 0.0),
+            forward_axis=Gf.Vec3d(1, 0, 0),
+        )
+
+    def shutdown(self):
+        remove_menu_items(self._menu_items, "Create")
+        self.menus = None

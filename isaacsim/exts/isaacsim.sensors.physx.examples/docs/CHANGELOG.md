@@ -1,0 +1,45 @@
+# Changelog
+
+## [2.2.4] - 2025-01-27
+### Changed
+- Updated docs link
+
+## [2.2.3] - 2025-01-26
+### Changed
+- Update test settings
+
+## [2.2.2] - 2025-01-21
+### Changed
+- Update extension description and add extension specific test settings
+
+## [2.2.1] - 2025-01-17
+### Changed
+- Temporarily changed docs link
+
+## [2.2.0] - 2024-12-16
+### Added
+- lightbeam_sensor example
+
+## [2.1.1] - 2024-11-25
+### Fixed
+- lidar examples pointers and shutting down properly
+
+## [2.1.0] - 2024-10-29
+### Changed
+- moved examples from menu to browser
+
+## [2.0.1] - 2024-10-24
+### Changed
+- Updated dependencies and imports after renaming
+
+## [2.0.0] - 2024-10-04
+### Removed
+- Ultrasonic sensor example.
+
+## [1.0.1] - 2024-09-03
+### Fixed
+- Disables "Load Lidar" button in Lidar example while stage is clearing
+
+## [1.0.0] - 2024-03-12
+### Added
+- Initial version of Isaac Sim Range sensor extension examples
