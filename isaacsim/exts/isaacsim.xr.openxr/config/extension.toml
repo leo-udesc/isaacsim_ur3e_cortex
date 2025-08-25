@@ -1,0 +1,37 @@
+# Extension configuration file.
+# Visit the "Extension configuration file (extension.toml)" section for more details:
+# https://docs.omniverse.nvidia.com/kit/docs/kit-manual/latest/guide/extensions_advanced.html
+#
+
+[core]
+reloadable = true
+order = 0
+
+[package]
+version = "0.2.5"
+category = "other"
+title = "Isaac Sim OpenXR support"
+description = "Additional APIs for integrating Isaac Sim and OpenXR for robotics"
+authors = ["NVIDIA"]
+repository = ""
+keywords = ["isaac", "xr", "openxr"]
+changelog = "docs/CHANGELOG.md"
+readme = "docs/README.md"
+preview_image = "data/preview.png"
+icon = "data/icon.png"
+
+[dependencies]
+"omni.kit.xr.system.openxr" = {}
+"omni.kit.xr.profile.ar" = {}
+
+# define the Python module that the extension provides
+[[python.module]]
+name = "isaacsim.xr.openxr"
+
+# define the C++ plugins that the extension provides
+[[native.plugin]]
+path = "bin/*.plugin"
+recursive = false
+
+# [settings]
+# exts."isaacsim.xr.openxr".timeout = 5

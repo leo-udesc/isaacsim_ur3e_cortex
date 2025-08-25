@@ -1,0 +1,33 @@
+[core]
+reloadable = true
+order = 0
+
+[package]
+version = "2.0.6"
+category = "Simulation"
+title = "Isaac Sim Merge Mesh"
+description = "Isaac Sim tool to facilitate combining meshes together in a single USD Prim. It provides the ability to reset the mesh origin to world origin, and combining all materials into a single list, combining materials with the same characteristics."
+authors = ["NVIDIA"]
+repository = ""
+keywords = ["isaac", "merge", "mesh",]
+changelog = "docs/CHANGELOG.md"
+readme = "docs/README.md"
+icon = "data/icon.png"
+preview_image = "data/preview.png"
+writeTarget.kit = true
+
+[dependencies]
+"isaacsim.core.deprecation_manager" = {}
+"isaacsim.gui.components" = {}
+
+[[python.module]]
+name = "isaacsim.util.merge_mesh"
+
+[[python.module]]
+name = "isaacsim.util.merge_mesh.tests"
+
+[[test]]
+dependencies = [
+   "omni.kit.primitive.mesh",
+   "omni.kit.material.library"
+]

@@ -1,0 +1,28 @@
+[core]
+reloadable = true
+order = 0
+
+[package]
+version = "1.1.2"
+category = "Simulation"
+title = "Isaac Sim Physics API Editor"
+description = "Collision and Physics Utils"
+authors = ["NVIDIA"]
+repository = ""
+keywords = ["isaac", "physics", "utils",]
+changelog = "docs/CHANGELOG.md"
+readme = "docs/README.md"
+icon = "data/icon.png"
+preview_image = "data/preview.png"
+writeTarget.kit = true
+
+[dependencies]
+"omni.physx" = {}
+"isaacsim.gui.components" = {}
+"isaacsim.core.deprecation_manager" = {}
+
+[[python.module]]
+name = "isaacsim.util.physics"
+
+[[python.module]]
+name = "isaacsim.util.physics.tests"
