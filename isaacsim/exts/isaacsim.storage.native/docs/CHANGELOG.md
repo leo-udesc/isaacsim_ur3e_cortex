@@ -1,0 +1,67 @@
+# Changelog
+
+## [1.0.6] - 2025-01-26
+### Changed
+- Update test settings
+
+## [1.0.5] - 2025-01-21
+### Changed
+- Update extension description and add extension specific test settings
+
+## [1.0.4] - 2024-12-20
+### Added
+- Added synchronous version of is_dir() function
+
+## [1.0.3] - 2024-11-18
+### Changed
+- omni.client._omniclient to omni.client
+
+## [1.0.2] - 2024-11-01
+### Changed
+- Deprecated get_nvidia_asset_root_path()
+- Deprecated get_isaac_asset_root_path()
+
+## [1.0.1] - 2024-10-24
+### Changed
+- Updated dependencies and imports after renaming
+
+## [1.0.0] - 2024-10-16
+### Changed
+- Extension renamed to isaacsim.storage.native
+
+## [0.3.2] - 2024-09-23
+
+### Changed
+- Updated to 4.5 asset path
+- Updated omni.isaac.version dependency to isaacsim.core.version
+
+## [0.3.1] - 2024-08-05
+
+### Changed
+- Updated to 4.2 asset path
+
+## [0.3.0] - 2024-06-30
+
+### Changed
+- Set Cloud assets path as default
+- Updated to 4.1 asset path
+
+## [0.2.0] - 2024-06-06
+
+### Changed
+- Updated get root path functions to throw a runtime error if the root path is not found
+
+## [0.1.2] - 2024-05-20
+
+### Changed
+- Updated to 4.0 asset path
+
+## [0.1.1] - 2024-04-24
+
+### Changed
+- Reduced timeout.
+
+## [0.1.0] - 2024-02-02
+
+### Added
+- Added first version of nucleus.
