@@ -1,0 +1,54 @@
+@startuml
+class SingleArticulation {
+    handles_initialized()
+    num_dof()
+    num_bodies()
+    dof_properties()
+    dof_names()
+    initialize()
+    get_dof_index()
+    get_articulation_body_count()
+    disable_gravity()
+    enable_gravity()
+    set_world_velocity()
+    get_world_velocity()
+    get_position_residual()
+    get_velocity_residual()
+    set_joint_positions()
+    get_joint_positions()
+    set_joint_velocities()
+    set_joint_efforts()
+    get_joint_velocities()
+    get_measured_joint_efforts()
+    get_applied_joint_efforts()
+    get_measured_joint_forces()
+    get_joints_default_state()
+    set_joints_default_state()
+    get_joints_state()
+    get_articulation_controller()
+    set_linear_velocity()
+    get_linear_velocity()
+    set_angular_velocity()
+    get_angular_velocity()
+    apply_action()
+    get_applied_action()
+    set_solver_position_iteration_count()
+    get_solver_position_iteration_count()
+    set_solver_velocity_iteration_count()
+    get_solver_velocity_iteration_count()
+    set_stabilization_threshold()
+    get_stabilization_threshold()
+    set_enabled_self_collisions()
+    get_enabled_self_collisions()
+    set_sleep_threshold()
+    get_sleep_threshold()
+        _backend
+    _device
+    _backend_utils
+    _articulation_view
+    _articulation_controller
+    _articulation_controller
+    __init__()
+}
+_SinglePrimWrapper <|-- SingleArticulation
+@enduml

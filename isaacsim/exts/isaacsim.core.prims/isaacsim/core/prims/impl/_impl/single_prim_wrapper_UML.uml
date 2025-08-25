@@ -1,0 +1,29 @@
+@startuml
+class _SinglePrimWrapper {
+    initialize()
+    prim_path()
+    name()
+    prim()
+    non_root_articulation_link()
+    set_visibility()
+    get_visibility()
+    post_reset()
+    get_default_state()
+    set_default_state()
+    apply_visual_material()
+    get_applied_visual_material()
+    is_visual_material_applied()
+    set_world_pose()
+    get_world_pose()
+    get_local_pose()
+    set_local_pose()
+    get_world_scale()
+    set_local_scale()
+    get_local_scale()
+    is_valid()
+    _view_state_conversion()
+        _prim_view
+    __init__()
+}
+object <|-- _SinglePrimWrapper
+@enduml
