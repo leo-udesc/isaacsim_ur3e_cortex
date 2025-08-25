@@ -1,0 +1,68 @@
+[core]
+reloadable = true
+order = 0
+
+[package]
+version = "2.2.4"
+category = "Simulation"
+title = "Isaac Sim PhysX Sensors"
+description = "Isaac Sim PhysX Sensors extension provides APIs for PhysX-raycast-based lidars and sensors including Proximity Sensor and Lightbeam Sensor."
+authors = ["NVIDIA"]
+repository = ""
+keywords = ["isaac", "lula", "rmp", "physx", "sensor", "lidar"]
+changelog = "docs/CHANGELOG.md"
+readme = "docs/README.md"
+icon = "data/icon.png"
+preview_image = "data/preview.png"
+
+
+[dependencies]
+"isaacsim.core.api" = {}
+"isaacsim.core.deprecation_manager" = {}
+"isaacsim.robot.schema" = {}
+"isaacsim.util.debug_draw" = {}
+"omni.graph" = {}
+"omni.kit.menu.utils" = {}
+"omni.kit.pip_archive" = {} # pulls in numpy
+"omni.kit.uiapp" = {}
+"omni.physx" = {}
+"omni.syntheticdata" = {}
+"omni.timeline" = {} # needed for simulation to start
+"omni.usd" = {}
+"omni.usdphysics" = {}
+"usdrt.scenegraph" = {}
+
+[[python.module]]
+name = "isaacsim.sensors.physx"
+
+[[python.module]]
+name = "isaacsim.sensors.physx.tests"
+public = false
+
+[[native.plugin]]
+path = "bin/*.plugin"
+recursive = false
+
+[[test]]
+
+stdoutFailPatterns.exclude = [
+ "*[Error] [omni.graph.core.plugin] /TestGraph/Template_isaacsim_sensors_physx_IsaacReadLidarBeams: [/TestGraph] no prim path found for the lidar*",
+ "*[Error] [omni.graph.core.plugin] /TestGraph/Template_isaacsim_sensors_physx_IsaacReadLidarPointCloud: [/TestGraph] no prim path found for the lidar*",
+ "*[Error] [omni.graph.core.plugin] /TestGraph/Template_isaacsim_sensors_physx_IsaacReadLightBeam: [/TestGraph] Invalid Light Beam Sensor prim*",
+]
+
+dependencies = [
+    "isaacsim.storage.native", # test only
+    "omni.kit.hydra_texture"
+]
+
+args = [
+'--/app/settings/fabricDefaultStageFrameHistoryCount = 3',
+'--/persistent/isaac/asset_root/default = "https://omniverse-content-production.s3-us-west-2.amazonaws.com/Assets/Isaac/4.5"',
+]
+
+[[test]]
+name = "startup"
+args = [
+    '--/app/settings/fabricDefaultStageFrameHistoryCount = 3',
+]
