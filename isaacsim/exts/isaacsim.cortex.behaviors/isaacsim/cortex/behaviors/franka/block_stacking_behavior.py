@@ -768,7 +768,7 @@ class PickBlockRd(DfStateMachineDecider, DfRldsNode):
 def make_pick_rlds():
     rlds = DfRldsDecider()
 
-    open_gripper_rd = OpenGripperRd(dist_thresh_for_open=0.15)
+    open_gripper_rd = OpenGripperRd(dist_thresh_for_open=0.15) 
     reach_to_block_rd = ReachToBlockRd()
     choose_block = ChooseNextBlock()
     approach_grasp = DfApproachGrasp()

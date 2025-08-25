@@ -30,7 +30,6 @@ from isaacsim.cortex.framework.dfb import (
 from isaacsim.cortex.framework.motion_commander import MotionCommand, PosePq
 
 
-j = 3 
 def make_grasp_T(t, ay):
     az = math_util.normalized(-t)
     ax = np.cross(ay, az)
@@ -170,7 +169,6 @@ def calc_grasp_for_top_of_tower(context):
 
 
 class BuildTowerContext(DfRobotApiContext):
-    
     class Block:
         def __init__(self, i, obj, grasp_Ts):
             self.i = i
@@ -206,22 +204,14 @@ class BuildTowerContext(DfRobotApiContext):
             self.is_aligned = True
 
     class BlockTower:
-        def __init__(self,i, tower_position, block_height, context):
-           
+        def __init__(self, tower_position, block_height, context):
             self.context = context
-            #order_preference = ["Blue", "Yellow", "Green", "Red"]
-            #self.desired_stack = [("%sCube_1" % c) for c in order_preference]
-            self.desired_stack = [
-                f"BlueCube_1_{i}",    # Bottom block
-                f"YellowCube_2_{i}",  # Second block
-                f"GreenCube_3_{i}",   # Third block
-                f"RedCube_0_{i}"      # Top block
-            ]
+            order_preference = ["Blue", "Yellow", "Green", "Red"]
+            self.desired_stack = [("%sCube" % c) for c in order_preference]
             self.tower_position = tower_position
             self.block_height = block_height
             self.stack = []
             self.prev_stack = None
-   
 
         @property
         def height(self):
@@ -234,7 +224,7 @@ class BuildTowerContext(DfRobotApiContext):
             return self.stack[-1]
 
         @property
-        def current_stack_in_correct_order(self):  #pilha atual está correta
+        def current_stack_in_correct_order(self):
             """Returns true if the current tower is in the correct order. False otherwise."""
             for pref_name, curr_block in zip(self.desired_stack, self.stack):
                 if curr_block.name != pref_name:
@@ -264,11 +254,11 @@ class BuildTowerContext(DfRobotApiContext):
                     break
                 else:
                     i += 1
-            
+
             new_blocks = self.stack[i:]
             removed_blocks = self.prev_stack[i:]
             return new_blocks, removed_blocks
-        
+
         def set_top_block_to_aligned(self):
             if len(self.stack) > 0:
                 self.stack[-1].is_aligned = True
@@ -299,8 +289,8 @@ class BuildTowerContext(DfRobotApiContext):
         super().__init__(robot)
         self.robot = robot
 
-        self.block_height = 0.040
-        self.block_pick_height = 0.02
+        self.block_height = 0.080
+        self.block_pick_height = 0.05
         self.block_grasp_Ts = make_block_grasp_Ts(self.block_pick_height)
         self.tower_position = tower_position
         self.diagnostics_message = ""
@@ -331,7 +321,7 @@ class BuildTowerContext(DfRobotApiContext):
             cortex_obj.sync_throttle_dt = 0.25
             self.blocks[name] = BuildTowerContext.Block(i, cortex_obj, self.block_grasp_Ts)
 
-        self.block_tower = BuildTowerContext.BlockTower(3,self.tower_position, self.block_height, self)
+        self.block_tower = BuildTowerContext.BlockTower(self.tower_position, self.block_height, self)
 
         self.active_block = None
         self.in_gripper = None
@@ -347,8 +337,6 @@ class BuildTowerContext(DfRobotApiContext):
 
     def activate_block(self, name):
         self.active_block = self.blocks[name]
- 
-
 
     def reset_active_block(self):
         if self.active_block is None:
@@ -456,65 +444,62 @@ class BuildTowerContext(DfRobotApiContext):
         The block tower is determined as the collection of blocks at the tower location and their
         order by height above the table.
         """
-        #obtem a posição da torre
         tower_xy = self.block_tower.tower_position[:2]
-        #Cria uma lista para os blocos que estão na torre
+
         new_block_tower_sequence = []
-        #percorre bloco por bloco
         for name, block in self.blocks.items():
-            # se o bloco está na garra, não faz nada e continua
             if self.gripper_has_block and self.in_gripper.name == block.name:
                 # Don't include any blocks currently in the gripper
                 continue
-            # obtém a posição do bloco
+
             p, _ = block.obj.get_world_pose()
             block_xy = p[:2]
             block_z = p[2]
-            # calcula a distância entre o bloco e a torre
+
             dist_to_tower = np.linalg.norm(tower_xy - block_xy)
-            thresh = self.block_height / 2 #calcula limiar = metade do tamanho do bloco
-            if dist_to_tower <= thresh: #se a distância for <= ao limiar :
-                new_block_tower_sequence.append((block_z, block)) #então adiciona a altura e o bloco a lista
+            thresh = self.block_height / 2
+            if dist_to_tower <= thresh:
+                new_block_tower_sequence.append((block_z, block))
 
-        if len(new_block_tower_sequence) > 1: #se houver mais de um bloco na lista
-            new_block_tower_sequence.sort(key=lambda v: v[0]) #ordena a lista do + baixo para o + alto
+        if len(new_block_tower_sequence) > 1:
+            new_block_tower_sequence.sort(key=lambda v: v[0])
 
-        self.block_tower.stash_stack() #atualiza o estado anterior da pilha
+        self.block_tower.stash_stack()
         for _, block in new_block_tower_sequence:
-            self.block_tower.stack.append(block) #atualiza a pilha com os blocos da lista
-        # Compara a pilha anterior com a nova
+            self.block_tower.stack.append(block)
+
         new_blocks, removed_blocks = self.block_tower.find_new_and_removed()
         for block in new_blocks:
-            block.is_aligned = False   #marca os novos blocos como não alinhados
+            block.is_aligned = False
 
         for block in removed_blocks:
-            block.is_aligned = None   # os blocos removidos marcados como não alinhados
+            block.is_aligned = None
 
     def monitor_gripper_has_block(self):
-        if self.gripper_has_block:   #se a garra tem um bloco
+        if self.gripper_has_block:
             block = self.in_gripper
-            _, block_p = math_util.unpack_T(block.obj.get_transform()) #calcula a posição world do bloco 
-            eff_p = self.robot.arm.get_fk_p() #calcula a posição do end-effector
-            if np.linalg.norm(block_p - eff_p) > 0.1: #se a distância entre bloco o end-effector for maior que 10cm  
-                self.diagnostics_message = "Block lost. Clearing gripper." #perdeu o bloco
-                self.clear_gripper()  #limpa a garra
+            _, block_p = math_util.unpack_T(block.obj.get_transform())
+            eff_p = self.robot.arm.get_fk_p()
+            if np.linalg.norm(block_p - eff_p) > 0.1:
+                self.diagnostics_message = "Block lost. Clearing gripper."
+                self.clear_gripper()
 
     def monitor_suppression_requirements(self):
         arm = self.robot.arm
-        eff_T = arm.get_fk_T() #calcula a posição do end-effector
+        eff_T = arm.get_fk_T()
         eff_R, eff_p = math_util.unpack_T(eff_T)
         ax, ay, az = math_util.unpack_R(eff_R)
 
-        target_p, _ = arm.target_prim.get_world_pose() #calcula a posição do cubo alvo
+        target_p, _ = arm.target_prim.get_world_pose()
 
-        toward_target = target_p - eff_p #calcula a direção da garra até o cubo alvo
-        dist_to_target = np.linalg.norm(toward_target) #calcula a distância entre a garra e o cubo alvo
+        toward_target = target_p - eff_p
+        dist_to_target = np.linalg.norm(toward_target)
 
-        blocks_to_suppress = []                        #inicializa a lista de blocos a suprimir
-        if self.gripper_has_block:                     #se a garra tem um bloco
-            blocks_to_suppress.append(self.in_gripper) #bloco adicionado a lista de blocos a suprimir
+        blocks_to_suppress = []
+        if self.gripper_has_block:
+            blocks_to_suppress.append(self.in_gripper)
 
-        for name, block in self.blocks.items():         
+        for name, block in self.blocks.items():
             block_T = block.obj.get_transform()
             block_R, block_p = math_util.unpack_T(block_T)
 
@@ -523,6 +508,8 @@ class BuildTowerContext(DfRobotApiContext):
             target_dist_to_block = np.linalg.norm(block_p - target_p)
             xy_dist = np.linalg.norm(block_p[:2] - target_p[:2])
             margin = 0.05
+            # Add the block if either we're descending on the block, or they're neighboring blocks
+            # during the descent.
             if (
                 target_dist_to_block < 0.1
                 and (xy_dist < 0.02 or eff_p[2] > block_p[2] + margin)
@@ -532,7 +519,7 @@ class BuildTowerContext(DfRobotApiContext):
             ):
                 if block not in blocks_to_suppress:
                     blocks_to_suppress.append(block)
-        # Desativa colisão para os blocos na lista
+
         for block in blocks_to_suppress:
             if block.collision_avoidance_enabled:
                 try:
@@ -543,42 +530,31 @@ class BuildTowerContext(DfRobotApiContext):
                     import traceback
 
                     traceback.print_exc()
-        # Ativa colisão para os blocos fora da lista
+
         for name, block in self.blocks.items():
             if block not in blocks_to_suppress:
                 if not block.collision_avoidance_enabled:
                     arm.enable_obstacle(block.obj)
                     block.collision_avoidance_enabled = True
-       
+
     def monitor_diagnostics(self):
         now = time.time()
-        global j
         if self.start_time is None:
             self.start_time = now
             self.next_print_time = now + self.print_dt
 
         if now >= self.next_print_time:
             # print("\n==========================================")
-            
             out = ("time since start: %f sec" % (now - self.start_time)) + "\n"
             out += self.print_tower_status() + "\n"
             self.next_print_time += self.print_dt
-            tower_position = [
-                np.array([0.3, 0.1, 0.0]),
-                np.array([0.3, 0.3, 0.0]),
-                np.array([0.2, 0.3, 0.0]),
-            ]
 
             if self.has_active_block:
                 out += f"active block:{self.active_block.name}"
             else:
                 out += "no active block"
-                if j >= 0:
-                    j = j-1
-                    self.tower_position = tower_position[j]
-                    self.block_tower = BuildTowerContext.BlockTower(j,tower_position[j], self.block_height, self)
-
             self.diagnostics_message = out
+
 
 class OpenGripperRd(DfRldsNode):
     def __init__(self, dist_thresh_for_open):
@@ -632,6 +608,7 @@ class GoHome(DfDecider):
 class ChooseNextBlockForTowerBuildUp(DfDecider):
     def __init__(self):
         super().__init__()
+        # If conditions aren't good, we'll just go home.
         self.add_child("go_home", GoHome())
         self.child_name = None
 
@@ -641,12 +618,6 @@ class ChooseNextBlockForTowerBuildUp(DfDecider):
 
     def decide(self):
         ct = self.context
-        # tentando evitar o erro 
-        next_block_name = ct.next_block_name
-        if next_block_name is None or next_block_name not in ct.blocks:
-            print("4 towers mounted or no more blocks to process")
-            return DfDecision("go_home")
-        #  não é por aqui, de volta para a análise
         ct.active_block = ct.blocks[ct.next_block_name]
 
         # Check exceptions
@@ -671,8 +642,7 @@ class ChooseNextBlockForTowerBuildUp(DfDecider):
         return DfDecision(self.child_name, ct.active_block.chosen_grasp)
 
     def exit(self):
-        if self.context.active_block is not None:            #if colocado para evitar erro
-            self.context.active_block.chosen_grasp = None
+        self.context.active_block.chosen_grasp = None
 
 
 class ChooseNextBlockForTowerTeardown(DfDecider):
@@ -736,10 +706,6 @@ class LiftState(DfState):
         self.success_z = self.context.robot.arm.get_fk_p()[2] + self.success_delta_z
 
     def closest_non_grasped_block_dist(self, eff_p):
-
-        self.success_z = self.context.robot.arm.get_fk_p()[2] + self.success_delta_z
-
-    def closest_non_grasped_block_dist(self, eff_p):
         blocks_with_dists = []
         for name, block in self.context.blocks.items():
             block_p, _ = block.obj.get_world_pose()
@@ -772,13 +738,13 @@ class LiftState(DfState):
 
 class PickBlockRd(DfStateMachineDecider, DfRldsNode):
     def __init__(self):
-        # This behavior uses the locking feature of the decision framework 
-        # to run a state machine sequence as an atomic unit.
+        # This behavior uses the locking feature of the decision framework to run a state machine
+        # sequence as an atomic unit.
         super().__init__(
             DfStateSequence(
                 [
                     DfSetLockState(set_locked_to=True, decider=self),
-                    DfTimedDeciderState(DfCloseGripper(), activity_duration=0.6),
+                    DfTimedDeciderState(DfCloseGripper(), activity_duration=0.5),
                     LiftState(command_delta_z=0.3, cautious_command_delta_z=0.03, success_delta_z=0.075),
                     DfWriteContextState(lambda ctx: ctx.mark_block_in_gripper()),
                     DfSetLockState(set_locked_to=False, decider=self),
@@ -789,8 +755,6 @@ class PickBlockRd(DfStateMachineDecider, DfRldsNode):
 
     def is_runnable(self):
         ct = self.context
-
-    
         if ct.has_active_block and ct.active_block.has_chosen_grasp:
             grasp_T = ct.active_block.chosen_grasp
             eff_T = self.context.robot.arm.get_fk_T()
@@ -885,7 +849,7 @@ class ReachToPlaceOnTable(DfDecider):
         T = math_util.pack_Rp(math_util.pack_R(ax, ay, az), rp)
 
         return calc_grasp_for_block_T(ct, T, -T[:3, 3])
-    
+
     def enter(self):
         self.context.placement_target_eff_T = self.choose_random_T_on_table()
 
@@ -894,7 +858,6 @@ class ReachToPlaceOnTable(DfDecider):
 
         table_point_validator = TablePointValidator(self.context)
         if not table_point_validator.validate_point(ct.placement_target_eff_T[:2, 3]):
-            # If the point is invalid, sample a new one.    
             ct.placement_target_eff_T = self.choose_random_T_on_table()
 
         return DfDecision("approach_grasp", ct.placement_target_eff_T)
@@ -932,8 +895,8 @@ def set_top_block_aligned(ct):
 
 class PlaceBlockRd(DfStateMachineDecider, DfRldsNode):
     def __init__(self):
-        # This behavior uses the locking feature of the decision framework to 
-        # run a state machine sequence as an atomic unit.
+        # This behavior uses the locking feature of the decision framework to run a state machine
+        # sequence as an atomic unit.
         super().__init__(
             DfStateSequence(
                 [
@@ -955,9 +918,9 @@ class PlaceBlockRd(DfStateMachineDecider, DfRldsNode):
             eff_T = ct.robot.arm.get_fk_T()
 
             thresh_met = math_util.transforms_are_close(
-                ct.placement_target_eff_T, eff_T, p_thresh=0.002, R_thresh=0.004
+                ct.placement_target_eff_T, eff_T, p_thresh=0.005, R_thresh=0.005
             )
-            # p_tresh = 0.005, R_thresh = 0.005 originally
+
             if thresh_met:
                 print("<placing block>")
             return thresh_met
@@ -969,7 +932,7 @@ class PlaceBlockRd(DfStateMachineDecider, DfRldsNode):
         self.context.placement_target_eff_T = None
 
 
-def make_place_rlds():
+def make_place_rlds():  #Robust Logical-Dynamical Systems
     rlds = DfRldsDecider()
     rlds.append_rlds_node("reach_to_placement", ReachToPlacementRd())
     rlds.append_rlds_node("place_block", PlaceBlockRd())
@@ -993,23 +956,8 @@ class BlockPickAndPlaceDispatch(DfDecider):
         else:
             return DfDecision("place")
 
-# 
-# def make_decider_network(robot):
-#     return DfNetwork(
-#         BlockPickAndPlaceDispatch(), context=BuildTowerContext(robot, tower_position=np.array([0.1, 0.4, 0.0]))
-#     )
-def make_decider_network(robot, tower_position=None):
-    """Create decider network for block stacking behavior.
-    
-        self.start_time = None
-    Args:
-        robot: Robot instance
-        tower_position: Optional tower position array. If None, uses default position.
-    """
-    if tower_position is None:
-        tower_position = np.array([0.1, 0.3, 0.0]) # initial tower position
-        
+
+def make_decider_network(robot):
     return DfNetwork(
-        BlockPickAndPlaceDispatch(), 
-        context=BuildTowerContext(robot, tower_position=tower_position)
+        BlockPickAndPlaceDispatch(), context=BuildTowerContext(robot, tower_position=np.array([0.1, 0.3, 0.8]))
     )

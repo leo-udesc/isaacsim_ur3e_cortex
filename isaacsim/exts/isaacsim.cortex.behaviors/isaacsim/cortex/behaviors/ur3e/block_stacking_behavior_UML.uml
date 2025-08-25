@@ -1,0 +1,177 @@
+@startuml
+class BuildTowerContext {
+    has_chosen_grasp()
+    name()
+    get_world_grasp_Ts()
+    get_best_grasp()
+    set_aligned()
+    height()
+    top_block()
+    current_stack_in_correct_order()
+    is_complete()
+    stash_stack()
+    find_new_and_removed()
+    set_top_block_to_aligned()
+    next_block()
+    next_block _placement_T()
+    reset()
+    has_active_block()
+    activate_block()
+    reset_active_block()
+    block_names()
+    num_blocks()
+    mark_block_in_gripper()
+    clear_gripper()
+    is_gripper_clear()
+    gripper_has_block()
+    has_placement_target_eff_T()
+    next_block_name()
+    find_not_in_tower()
+    print_tower_status()
+    monitor_perception()
+    monitor_block_tower()
+    monitor_gripper_has_block()
+    monitor_suppression_requirements()
+    monitor_diagnostics()
+        i
+    obj
+    is_aligned
+    grasp_Ts
+    chosen_grasp
+    collision_avoidance_enabled
+    is_aligned
+    context
+    tower_position
+    block_height
+    prev_stack
+    prev_stack
+    robot
+    block_height
+    block_pick_height
+    block_grasp_Ts
+    tower_position
+    blocks
+    block_tower
+    active_block
+    in_gripper
+    placement_target_eff_T
+    print_dt
+    next_print_time
+    start_time
+    active_block
+    active_block
+    in_gripper
+    in_gripper
+    start_time
+    next_print_time
+    diagnostics_message
+    __init__()
+}
+class OpenGripperRd {
+    is_runnable()
+    decide()
+        dist_thresh_for_open
+    __init__()
+}
+class ReachToBlockRd {
+    link_to()
+    is_runnable()
+    decide()
+        child_name
+    child_name
+    __init__()
+}
+class GoHome {
+    enter()
+    decide()
+        __init__()
+}
+class ChooseNextBlockForTowerBuildUp {
+    link_to()
+    decide()
+    exit()
+        child_name
+    child_name
+    __init__()
+}
+class ChooseNextBlockForTowerTeardown {
+    link_to()
+    decide()
+    exit()
+        child_name
+    child_name
+    __init__()
+}
+class ChooseNextBlock {
+    link_to()
+    decide()
+        __init__()
+}
+class LiftState {
+    enter()
+    closest_non_grasped_block_dist()
+    step()
+    exit()
+        command_delta_z
+    cautious_command_delta_z
+    success_delta_z
+    success_z
+    __init__()
+}
+class PickBlockRd {
+    is_runnable()
+    make_pick_rlds()
+        is_locked
+    __init__()
+}
+class TablePointValidator {
+    validate_point()
+    sample_random_position_2d()
+        center_p
+    std_devs
+    __init__()
+}
+class ReachToPlaceOnTower {
+    decide()
+    exit()
+        __init__()
+}
+class ReachToPlaceOnTable {
+    choose_random_T_on_table()
+    enter()
+    decide()
+    exit()
+        __init__()
+}
+class ReachToPlacementRd {
+    is_runnable()
+    enter()
+    decide()
+    set_top_block_aligned()
+        __init__()
+}
+class PlaceBlockRd {
+    is_runnable()
+    exit()
+    make_place_rlds()
+        is_locked
+    __init__()
+}
+class BlockPickAndPlaceDispatch {
+    decide()
+    make_decider_network()
+        __init__()
+}
+DfRobotApiContext <|-- BuildTowerContext
+DfRldsNode <|-- OpenGripperRd
+DfRldsNode <|-- ReachToBlockRd
+DfDecider <|-- GoHome
+DfDecider <|-- ChooseNextBlockForTowerBuildUp
+DfDecider <|-- ChooseNextBlockForTowerTeardown
+DfDecider <|-- ChooseNextBlock
+DfState <|-- LiftState
+DfDecider <|-- ReachToPlaceOnTower
+DfDecider <|-- ReachToPlaceOnTable
+DfRldsNode <|-- ReachToPlacementRd
+DfDecider <|-- BlockPickAndPlaceDispatch
+@enduml
