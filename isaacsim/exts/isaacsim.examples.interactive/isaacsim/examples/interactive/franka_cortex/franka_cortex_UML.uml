@@ -1,0 +1,31 @@
+@startuml
+class CubeSpec {
+        name
+    color
+    __init__()
+}
+class ContextStateMonitor {
+    print_diagnostics()
+        diagnostic_fn
+    __init__()
+}
+class FrankaCortex {
+    setup_scene()
+    clear_behavior()
+    _on_monitor_update()
+    _on_physics_step()
+    world_cleanup()
+        _monitor_fn
+    behavior
+    robot
+    context_monitor
+    robot
+    behavior
+    decider_network
+    robot
+    decider_network
+    __init__()
+}
+DfDiagnosticsMonitor <|-- ContextStateMonitor
+CortexBase <|-- FrankaCortex
+@enduml

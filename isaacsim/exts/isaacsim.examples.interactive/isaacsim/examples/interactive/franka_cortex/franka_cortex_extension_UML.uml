@@ -1,0 +1,30 @@
+@startuml
+class FrankaCortexExtension {
+    on_startup()
+    on_shutdown()
+        __init__()
+}
+class FrankaCortexUI {
+    build_ui()
+    build_extra_frames()
+    _on_load_world()
+    on_diagnostics()
+    get_world()
+    get_behavior()
+    _on_start_button_event()
+    post_reset_button_event()
+    post_load_button_event()
+    post_clear_button_event()
+    __on_selected_behavior_changed()
+    build_task_controls_ui()
+    build_diagnostic_ui()
+        loaded
+    loaded
+    selected_behavior
+    state_model
+    diagnostics_panel
+    diagostic_model
+    __init__()
+}
+BaseSampleUITemplate <|-- FrankaCortexUI
+@enduml
